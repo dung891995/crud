@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"
+        integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .info {
+
+            width: 80%;
+            margin: 0 auto;
+
+        }
+
+        .info-user {
+            float: left;
+            margin-left: 10px;
+            margin-top: 10px;
+            width: 255px;
+            height: 275px;
+            background-color: #ccdbcc;
+            border: 1px solid #aaa2ce;
+
+
+        }
+
+        p {
+            margin-left: 30px;
+        }
+
+        button {
+            margin-left: 30px
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        .search-user {
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        #id-ele {
+            opacity: 0;
+
+        }
+    </style>
+</head>
+<style></style>
+
+<body>
+    <div class="search-user">
+        <form>
+            <input type="text" value="Nhập username" name="searchUser">
+            <button>Tìm kiếm</button>
+        </form>
+
+    </div>
+    <div class="info">
+
+    </div>
+    <button id="btn1">1</button>
+    <button id='btn2'>2</button>
+</body>
+<script>
+    $.ajax({
+        url: "/api/user",
+        type: "GET",
+    }).then(function (data) {
+        console.log(data)
+        for (let i = 0; i < data.length; i++) {
+            var infoUser = `
+              <div class='info-user info-user-${i + 1} '>
+              <h3>User ${i + 1}</h3>
+              <br>
+              <p>Username: <input class="input-username" name="username" id='username-${data[i]._id}' value="${data[i].username}"/>
+                 <span id="value-username-${data[i]._id}"> ${data[i].username} </span> </p>
+              <br>
+
+              <p>address :<input class="input-address" name="address" id ="address-${data[i]._id}" value="${data[i].address}"/>
+                <span id="value-address-${data[i]._id}"> ${data[i].address} </span></p>
+              <br>
+
+              <p>password :<input class="input-password" name="password" id ="password-${data[i]._id}" value="${data[i].password}"/>   
+                <span id="value-password-${data[i]._id}"+${data[i]._id}> ${data[i].password} </span></p>
+              <br>
+
+              <p>age :<input class="input-age" name="age" id ="age-${data[i]._id}" value="${data[i].age}"/>
+                 <span id="value-age-${data[i]._id}"> ${data[i].age} </span></p>
+              <br>
+
+              <button type='button' class='btn-edit' id = "edit-${data[i]._id}" onClick=edit('${data[i]._id}')>Edit</button>
+              <button type='button' class='btn-save' id="save-${data[i]._id}" onClick=save('${data[i]._id}')>Save</button>
+              <button type='button' class='btn-delete' onClick=delete('${data[i]._id}')>Delete</button>
+              </div>
+ 
+          `
+            $(".info").append(infoUser);
+        } $('input').hide();
+        $('.btn-save').hide();
+
+    })
+    function edit(id) {
+        // $('.btn-save').show();
+        // $('span').hide();
+        // $('input').show();
+        // $('btn-edit').hide();
+        $("#username-" + id).show();
+        $("#password-" + id).show();
+        $("#age-" + id).show();
+        $("#address-" + id).show();
+        $("#value-address-" + id).hide();
+        $("#value-age-" + id).hide();
+        $("#value-password-" + id).hide();
+        $("#value-username-" + id).hide();
+        $("#save-" + id).show();
+        $("#edit-" + id).hide();
+
+    }
+    function save(id) {
+        $("#value-address-" + id).show();
+        $("#value-age-" + id).show();
+        $("#value-password-" + id).show();
+        $("#value-username-" + id).show();
+        $("#username-" + id).hide();
+        $("#password-" + id).hide();
+        $("#age-" + id).hide();
+        $("#address-" + id).hide();
+        $("#save-" + id).hide();
+        $("#edit-" + id).show();
+        var username = $('#username-' + id).val();
+        var password = $('#password-' + id).val();
+        var address = $('#address-' + id).val();
+        var age = $('#age-' + id).val();
+        console.log(username,id,address,age,password)
+        function name(params) {
+            
+        }
+        $.ajax({
+            url: "/api/user/" + id,
+            type: "PUT",
+            data: {
+                username: username,
+                password: password,
+                address: address,
+                age: age
+            }
+        }).then((result) => {
+            // window.location.reload;
+        })
+    }
+</script>
+
+</html>
