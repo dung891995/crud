@@ -13,11 +13,17 @@
             padding: 0;
         }
 
+        html,
+        body {
+            width: 100%;
+        }
+
         .info {
 
             width: 80%;
             margin: 0 auto;
-
+            height: auto;
+            overflow: auto;
         }
 
         .info-user {
@@ -54,6 +60,10 @@
             opacity: 0;
 
         }
+
+        .li-page {
+            display: inline;
+        }
     </style>
 </head>
 <style></style>
@@ -67,49 +77,78 @@
 
     </div>
     <div class="info">
+        <div class="ok">
+        </div>
 
     </div>
-    <button id="btn1">1</button>
-    <button id='btn2'>2</button>
+    <div class="div-btn">
+        <ul class="ul-btn">
+
+        </ul>
+    </div>
+
 </body>
 <script>
+    getPage(1);
     $.ajax({
         url: "/api/user",
         type: "GET",
     }).then(function (data) {
-        console.log(data)
-        for (let i = 0; i < data.length; i++) {
-            var infoUser = `
-              <div class='info-user info-user-${i + 1} '>
-              <h3>User ${i + 1}</h3>
-              <br>
-              <p>Username: <input class="input-username" name="username" id='username-${data[i]._id}' value="${data[i].username}"/>
-                 <span id="value-username-${data[i]._id}"> ${data[i].username} </span> </p>
-              <br>
+        //     console.log(data)
 
-              <p>address :<input class="input-address" name="address" id ="address-${data[i]._id}" value="${data[i].address}"/>
-                <span id="value-address-${data[i]._id}"> ${data[i].address} </span></p>
-              <br>
+        var nPage = Math.ceil(data.length / 4);
+        for (let i = 0; i < nPage; i++) {
+            var listButton = `
+            <li class="li-page" onClick=getPage('${i + 1}')><button style="padding:10px; margin-top:5px">${i + 1}</button></li>`
+            $('.ul-btn').append(listButton);
+        }
 
-              <p>password :<input class="input-password" name="password" id ="password-${data[i]._id}" value="${data[i].password}"/>   
-                <span id="value-password-${data[i]._id}"+${data[i]._id}> ${data[i].password} </span></p>
-              <br>
+        // }
 
-              <p>age :<input class="input-age" name="age" id ="age-${data[i]._id}" value="${data[i].age}"/>
-                 <span id="value-age-${data[i]._id}"> ${data[i].age} </span></p>
-              <br>
-
-              <button type='button' class='btn-edit' id = "edit-${data[i]._id}" onClick=edit('${data[i]._id}')>Edit</button>
-              <button type='button' class='btn-save' id="save-${data[i]._id}" onClick=save('${data[i]._id}')>Save</button>
-              <button type='button' class='btn-delete' onClick=delete('${data[i]._id}')>Delete</button>
-              </div>
- 
-          `
-            $(".info").append(infoUser);
-        } $('input').hide();
-        $('.btn-save').hide();
 
     })
+    function getPage(page) {
+        $(".ok").html("")
+        $.ajax({
+            url: "/api/page/" + page,
+            type: 'GET'
+        }).then((data) => {
+            console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                var infoUser = `
+                  <div class='info-user info-user-${i + 1} '>
+                  <h3>User ${i + 1}</h3>
+                  <br>
+                  <p>Username: <input class="input-username" name="username" id='username-${data[i]._id}' value="${data[i].username}"/>
+                     <span id="value-username-${data[i]._id}"> ${data[i].username} </span> </p>
+                  <br>
+
+                  <p>address :<input class="input-address" name="address" id ="address-${data[i]._id}" value="${data[i].address}"/>
+                    <span id="value-address-${data[i]._id}"> ${data[i].address} </span></p>
+                  <br>
+
+                  <p>password :<input class="input-password" name="password" id ="password-${data[i]._id}" value="${data[i].password}"/>   
+                    <span id="value-password-${data[i]._id}"+${data[i]._id}> ${data[i].password} </span></p>
+                  <br>
+
+                  <p>age :<input class="input-age" name="age" id ="age-${data[i]._id}" value="${data[i].age}"/>
+                     <span id="value-age-${data[i]._id}"> ${data[i].age} </span></p>
+                  <br>
+
+                  <button type='button' class='btn-edit' id = "edit-${data[i]._id}" onClick=edit('${data[i]._id}')>Edit</button>
+                  <button type='button' class='btn-save' id="save-${data[i]._id}" onClick=save('${data[i]._id}')>Save</button>
+                  <button type='button' class='btn-delete' onClick=delete('${data[i]._id}')>Delete</button>
+                  </div>
+
+              `
+                $(".ok").append(infoUser);
+            }
+            $('input').hide();
+            $('.btn-save').hide();
+        }).catch((err) => {
+
+        });
+    }
     function edit(id) {
         // $('.btn-save').show();
         // $('span').hide();
@@ -128,6 +167,7 @@
 
     }
     function save(id) {
+
         $("#value-address-" + id).show();
         $("#value-age-" + id).show();
         $("#value-password-" + id).show();
@@ -142,9 +182,9 @@
         var password = $('#password-' + id).val();
         var address = $('#address-' + id).val();
         var age = $('#age-' + id).val();
-        console.log(username,id,address,age,password)
+        console.log(username, id, address, age, password)
         function name(params) {
-            
+
         }
         $.ajax({
             url: "/api/user/" + id,
@@ -156,7 +196,10 @@
                 age: age
             }
         }).then((result) => {
-            // window.location.reload;
+            alert('sửa ok')
+            var page = window.location.href
+            console.log(page);
+            // getPage();
         })
     }
 </script>
