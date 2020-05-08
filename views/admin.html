@@ -89,6 +89,7 @@
 
 </body>
 <script>
+    var nPage = null;
     getPage(1);
     $.ajax({
         url: "/api/user",
@@ -96,7 +97,7 @@
     }).then(function (data) {
         //     console.log(data)
 
-        var nPage = Math.ceil(data.length / 4);
+        var nPage = Math.ceil(data.length / 3);
         for (let i = 0; i < nPage; i++) {
             var listButton = `
             <li class="li-page" onClick=getPage('${i + 1}')><button style="padding:10px; margin-top:5px">${i + 1}</button></li>`
@@ -108,12 +109,12 @@
 
     })
     function getPage(page) {
+        nPage = page;
         $(".ok").html("")
         $.ajax({
             url: "/api/page/" + page,
             type: 'GET'
         }).then((data) => {
-            console.log(data);
             for (let i = 0; i < data.length; i++) {
                 var infoUser = `
                   <div class='info-user info-user-${i + 1} '>
@@ -182,10 +183,6 @@
         var password = $('#password-' + id).val();
         var address = $('#address-' + id).val();
         var age = $('#age-' + id).val();
-        console.log(username, id, address, age, password)
-        function name(params) {
-
-        }
         $.ajax({
             url: "/api/user/" + id,
             type: "PUT",
@@ -196,9 +193,10 @@
                 age: age
             }
         }).then((result) => {
-            alert('sửa ok')
-            var page = window.location.href
-            console.log(page);
+            // alert('sửa ok')
+            getPage(nPage)
+            console.log(nPage);
+
             // getPage();
         })
     }

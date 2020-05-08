@@ -12,9 +12,14 @@ function addNew(username, password, age, address) {
         address: address
     })
 }
-
+function findByUser(username) {
+    return UserModel.findOne({ username: username })
+}
+function findAdmin(username) {
+    return UserModel.find({ username: username })
+}
 function checkAccount(username) {
-    return UserModel.find({username:username})
+    return UserModel.find({ username: username })
 }
 
 function getById(id) {
@@ -22,19 +27,19 @@ function getById(id) {
 }
 
 function updateUser(id, username, password, age, address) {
-    var userInfor={
+    var userInfor = {
     }
     if (username) {
-        userInfor.username=username
+        userInfor.username = username
     }
-    if(address){
-        userInfor.address=address
+    if (address) {
+        userInfor.address = address
     }
     if (password) {
-        userInfor.password=password
+        userInfor.password = password
     }
     if (age) {
-        userInfor.age=age
+        userInfor.age = age
     }
     return UserModel.updateOne({
         _id: id
@@ -44,13 +49,13 @@ function updateUser(id, username, password, age, address) {
 function deleteUser(id) {
     return UserModel.deleteOne({ _id: id })
 }
-function checkUser(username,password) {
+function checkUser(username, password) {
     return UserModel.find({
-        $and:[{username:username},{password:password}]
+        $and: [{ username: username }, { password: password }]
     })
 }
 function page(npage) {
-     return UserModel.find().skip((npage-1)*4).limit(4)   
+    return UserModel.find().skip((npage - 1) * 3).limit(3)
 }
 module.exports = {
     getAll: getAll,
@@ -58,7 +63,9 @@ module.exports = {
     getById: getById,
     updateUser: updateUser,
     deleteUser: deleteUser,
-    checkAccount:checkAccount,
-    checkUser:checkUser,
-    page:page
+    checkAccount: checkAccount,
+    checkUser: checkUser,
+    page: page,
+    findByUser:findByUser,
+    findAdmin:findAdmin
 }

@@ -31,7 +31,7 @@
                 //giá trị mà người dùng cần gửi lên server
             }
         }).then(function(data) {
-            if (data.error) {
+            if (data.error==false) {
                 window.location.href = "/api/admin"
                 
             } else {

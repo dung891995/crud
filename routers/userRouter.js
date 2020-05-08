@@ -1,6 +1,8 @@
 var router = require("express").Router();
 var UserService = require("../services/userService");
 var path = require("path");
+var bcrypt = require('bcryptjs');
+
 router.get("/index", function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/index.html"))
 })
@@ -24,49 +26,99 @@ router.get("/user/:id", function (req, res, next) {
 
 router.post("/user", function (req, res, next) {
     var username = req.body.username;
+    UserService.findByUser(username).then((result) => {
+        if (!result) {
+            next();
+        } else {
+            return res.json({
+                error: true,
+                message: "tk đã tồn tại"
+            })
+        }
+    })
+}, function (req, res, next) {
+    var username = req.body.username;
     var password = req.body.password;
     var age = req.body.age;
     var address = req.body.address;
-    UserService.checkAccount(username).then((result) => {
-        if (result.length >= 1) {
-            res.json({
-                error: true,
-                message: 'tk đã tồn tại'
-            })
-        } else {
-            UserService.addNew(username, password, age, address).then(function (data) {
+    bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+            UserService.addNew(username, hash, age, address).then(function (data) {
                 // res.redirect("/api/home");
                 res.json({
                     error: false,
                     data: data
                 })
             })
-        }
 
+
+        })
     })
-})
+});
+
+
 router.get("/login", function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/login.html"))
 })
 router.post("/login", function (req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
-    UserService.checkUser(username, password).then((result) => {
-        if (result.length >= 1) {
-            res.json({ error: true, result })
-        } else {
-            res.json({ error: false, message: 'username hoặc pass bị sai' })
-        }
+    UserService.findByUser(username).then((result) => {
+        bcrypt.compare(password, result[0].password, function (err, result) {
+            if (result) {
+                res.json({
+                    error: false,
+                    // message:"dang nhap thanh cong"
+                })
+            } else {
+                res.json({
+                    error: true,
+                    message: "tk or mk sai"
+                })
+
+            }
+        });
     })
+
+    // UserService.checkUser(username, password).then((result) => {
+    //     if (result.length >= 1) {
+    //         res.json({ error: true, result })
+    //     } else {
+    //         res.json({ error: false, message: 'username hoặc pass bị sai' })
+    //     }
+    // })
 })
-router.put("/user/:id", function (req, res, next) {
+router.put("/user/:id",function (req,res,next) {
+    var username = req.body.username;
+    UserService.findAdmin(username).then((result) => {
+        console.log(result);
+        if (result.length>=1 && result[0].username=='admin') {
+            // if (result[0].username=='admin') {
+            //     next();
+            //     } else {
+            //         return res.json({
+            //             error: true,
+            //             message: "ban da dang nhap sai tai khoản hoặc mật khẩu"
+            //         })
+            //     }
+            next();
+        } else {
+            return res.json({
+                error: true,
+                message: "ban da dang nhap sai tai khoản hoặc mật khẩu"
+            })
+        }
+        
+    })
+    
+}, function (req, res, next) {
     var id = req.params.id;
     var username = req.body.username;
     var password = req.body.password;
     var age = req.body.age;
     var address = req.body.address;
-   
-    UserService.updateUser(id,username, password, age, address).then(function (data) {
+
+    UserService.updateUser(id, username, password, age, address).then(function (data) {
         res.json(data);
     })
 })
@@ -92,7 +144,6 @@ router.get("/page/:npage", function (req, res, next) {
         res.json(result)
     })
 })
-
 //tên api đầy đủ của router :
 // tên api server + tên api router
 
