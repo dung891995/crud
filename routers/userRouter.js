@@ -2,6 +2,7 @@ var router = require("express").Router();
 var UserService = require("../services/userService");
 var path = require("path");
 var bcrypt = require('bcryptjs');
+var isLogin = false;
 
 router.get("/index", function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/index.html"))
@@ -9,7 +10,15 @@ router.get("/index", function (req, res, next) {
 router.get("/home", function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/home.html"))
 })
+router.get("/homeAdmin", function (req, res, next) {
+    res.sendFile(path.join(__dirname, "../views/homeAdmin.html"))
+})
 router.get("/admin", function (req, res, next) {
+if (isLogin==false) {
+    return res.redirect('/api/login')
+}
+next();
+}, function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/admin.html"))
 })
 router.get("/user", function (req, res, next) {
@@ -27,7 +36,8 @@ router.get("/user/:id", function (req, res, next) {
 router.post("/user", function (req, res, next) {
     var username = req.body.username;
     UserService.findByUser(username).then((result) => {
-        if (!result) {
+        console.log(result);
+        if (result.length<1) {
             next();
         } else {
             return res.json({
@@ -58,17 +68,26 @@ router.post("/user", function (req, res, next) {
 
 
 router.get("/login", function (req, res, next) {
+    if (isLogin) {
+        return res.redirect('/api/admin')
+    }
+    next();
+}, function (req, res, next) {
     res.sendFile(path.join(__dirname, "../views/login.html"))
 })
 router.post("/login", function (req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
-    UserService.findByUser(username).then((result) => {
-        bcrypt.compare(password, result[0].password, function (err, result) {
+    UserService.findByUser(username).then((data) => {
+        
+        bcrypt.compare(password, data[0].password, function (err, result) {
+            
             if (result) {
+                isLogin = true;
                 res.json({
+                    role : result.role,
                     error: false,
-                    // message:"dang nhap thanh cong"
+                    message:"dang nhap thanh cong"
                 })
             } else {
                 res.json({
@@ -88,11 +107,11 @@ router.post("/login", function (req, res, next) {
     //     }
     // })
 })
-router.put("/user/:id",function (req,res,next) {
+router.put("/user/:id", function (req, res, next) {
     var username = req.body.username;
     UserService.findAdmin(username).then((result) => {
         console.log(result);
-        if (result.length>=1 && result[0].username=='admin') {
+        if (result.length >= 1 && result[0].username == 'admin') {
             // if (result[0].username=='admin') {
             //     next();
             //     } else {
@@ -108,9 +127,9 @@ router.put("/user/:id",function (req,res,next) {
                 message: "ban da dang nhap sai tai khoản hoặc mật khẩu"
             })
         }
-        
+
     })
-    
+
 }, function (req, res, next) {
     var id = req.params.id;
     var username = req.body.username;
@@ -142,6 +161,13 @@ router.get("/page/:npage", function (req, res, next) {
     var npage = +req.params.npage;
     UserService.page(npage).then((result) => {
         res.json(result)
+    })
+})
+router.get("/logout",function (req, res) {
+    isLogin = false;
+    res.json({
+        error:false,
+        message:"dang xuat thanh cong"
     })
 })
 //tên api đầy đủ của router :

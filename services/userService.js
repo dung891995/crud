@@ -9,11 +9,11 @@ function addNew(username, password, age, address) {
         username: username,
         password: password,
         age: age,
-        address: address
+        address: address,
     })
 }
 function findByUser(username) {
-    return UserModel.findOne({ username: username })
+    return UserModel.find({ username: username })
 }
 function findAdmin(username) {
     return UserModel.find({ username: username })

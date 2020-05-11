@@ -4,7 +4,11 @@ var UserSchema = new Schema({
     username: String,
     password: String,
     age: Number,
-    address: String
+    address: String,
+    role:{
+      type:String,
+      default:'user'
+    }
 },{
   collection: "userTables"
 });
